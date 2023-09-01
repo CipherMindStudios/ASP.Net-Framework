@@ -1,0 +1,161 @@
+﻿@page "/shows"
+@using Syncfusion.Blazor.Cards
+@using Syncfusion.Blazor.Navigations;
+@using Cinehub.Services
+@inject CinehubService cinservice
+  
+<section class="bg">
+    <div class="container mt-3">
+        <SfTab OverflowMode="OverflowMode.Scrollable">
+             <TabItems>
+                @foreach(TabData item in TabItems)
+                {
+                    <TabItem>
+                        <ChildContent>
+                            <TabHeader Text=@item.Header ></TabHeader>
+                        </ChildContent>
+                        <ContentTemplate>
+                           <div class="row my-4">
+                                @{
+                                    int i = 0;
+                                }
+                                @foreach(Movie movie in item.Content){
+                                    Console.WriteLine(i);
+                                    <div class="col-md-5 my-3">
+                                        <MovieCard cinheubService="cinheubService" movies="movie" date="item.Date" genre="item.Genres[i]" showid="item.ShowId[i]"></MovieCard>
+                                    </div>
+                                    i = i + 1;
+                                }
+                             </div>
+                        </ContentTemplate>
+                     </TabItem> 
+                }
+             </TabItems>
+         </SfTab>
+        </div>
+</section>
+
+<style>
+    .bg{
+        background-color: black
+    }
+    section {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 400px;
+      }
+
+      .e-tab .e-tab-header .e-toolbar-item{
+    background: rgba(9,8,14,1);
+    border: 0px;
+    width:150px;
+}
+
+   .e-tab .e-tab-header .e-tab-text { 
+        color: white !important;
+        padding: 1rem;
+        font-size: 18px;
+    } 
+
+    .e-tab .e-tab-header .e-toolbar-item .e-tab-wrap:hover {
+    background: black !important;
+    border:0px
+}
+   .e-tab .e-tab-header { 
+        background: black !important;     
+
+    } 
+.e-tab .e-tab-header .e-toolbar-item.e-active {
+    background: black;
+     border:0px
+}
+</style>
+
+@code{
+    CinehubService cinheubService;
+    public class TabData
+    {
+        public string Header { get; set; }
+        public List<Movie> Content { get; set; }
+        public List<Genre> Genres{ get; set; }
+        public List<int> ShowId{ get; set; }
+        public DateTime Date{ get; set; }
+    }
+    public String[] days=new String[5];
+    public List<TabData> TabItems;
+    public List<Movie>[] movies = new List<Movie>[5];
+    public List<Genre>[] genres = new List<Genre>[5];
+    public List<int>[] showId = new List<int>[5];
+    public List<DateTime> date = new List<DateTime>();
+
+
+    protected override void OnInitialized()
+    {
+        cinheubService = new CinehubService();
+        DayOfWeek wk = DateTime.Today.DayOfWeek;
+        date.Add(DateTime.Now);
+        for(int i = 0; i < 5; ++i)
+        {
+            days[i]=wk.ToString();
+            genres[i] = new List<Genre>();
+            showId[i] = new List<int>();
+            movies[i] = cinheubService.getShows(date[i]);
+            foreach (Movie item in movies[i])
+            {
+                genres[i].Add(cinheubService.GetGenre(item));
+                showId[i].Add(cinheubService.getShowId(item, date[i]));
+            }
+            date.Add(date[i].AddDays(1));
+            wk=wk+1;
+            if ((int)wk == 7)
+                wk = 0;
+        }
+        TabItems = new List<TabData>()
+        {
+            new TabData
+            {
+                Header=days[0],
+                Content=movies[0],
+                Date=date[0],
+                Genres=genres[0],
+                ShowId=showId[0]
+            },
+             new TabData
+            {
+                Header=days[1],
+                Content=movies[1],
+                Date=date[1],
+                Genres=genres[1],
+                ShowId=showId[1]
+            },
+             new TabData
+            {
+                Header=days[2],
+                Content=movies[2],
+                Date=date[2],
+                Genres=genres[2],
+                ShowId=showId[2]
+            },
+             new TabData
+            {
+                Header=days[3],
+                Content=movies[3],
+                Date=date[3],
+                Genres=genres[3],
+                ShowId=showId[3]
+            },
+             new TabData
+            {
+                Header=days[4],
+                Content=movies[4],
+                Date=date[4],
+                Genres=genres[4],
+                ShowId=showId[4]
+            }
+        };
+    }
+
+}
+

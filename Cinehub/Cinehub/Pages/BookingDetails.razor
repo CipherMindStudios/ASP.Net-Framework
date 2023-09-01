@@ -1,0 +1,109 @@
+﻿@page "/bookingDetails"
+@inject Microsoft.JSInterop.IJSRuntime JS
+@using System.IO
+@using Cinehub.Services
+@using Syncfusion.Blazor.Navigations
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment hostingEnvironment
+
+<section class="bg">
+    <div class="container-fluid my-5">
+        <SfTab>
+    <TabItems>
+        <TabItem Content="Twitter is an online social networking service that enables users to send and read short 140-charactermessages called tweets.Registered users can read and post tweets, but those who are unregistered can only readthem.Users access Twitter through the website interface, SMS or mobile device app Twitter Inc. is based in SanFrancisco and has more than 25 offices around the world.Twitter was created in March 2006 by Jack Dorsey,Evan Williams, Biz Stone, and Noah Glass and launched in July 2006. The service rapidly gained worldwide popularity,with more than 100 million users posting 340 million tweets a day in 2012.The service also handled 1.6 billionsearch queries per day.">
+            <ChildContent>
+                <TabHeader Text="Twitter"></TabHeader>
+            </ChildContent>
+        </TabItem>
+        <TabItem Content="Facebook is an online social networking service headquartered in Menlo Park, California. Its website waslaunched on February 4, 2004, by Mark Zuckerberg with his Harvard College roommates and fellow students EduardoSaverin, Andrew McCollum, Dustin Moskovitz and Chris Hughes.">
+            <ChildContent>
+                <TabHeader Text="Facebook"></TabHeader>
+            </ChildContent>
+        </TabItem>
+        <TabItem Content="WhatsApp Messenger is a proprietary cross-platform instant messaging client for smartphones that operatesunder a subscription business model.It uses the Internet to send text messages, images, video, user location andaudio media messages to other users using standard cellular mobile numbers. As of February 2016, WhatsApp had a userbase of up to one billion,[10] making it the most globally popular messaging application.WhatsApp Inc., based inMountain View, California, was acquired by Facebook Inc.on February 19, 2014, for approximately US$19.3 billion.">
+            <ChildContent>
+                <TabHeader Text="Whatsapp"></TabHeader>
+            </ChildContent>
+        </TabItem>
+    </TabItems>
+</SfTab>
+        @{
+            int i=0;
+        }
+        @foreach (var item in movies)
+        {
+            <div class="my-3">
+                <MovieTile movie=item id=bookingId[i]></MovieTile>
+            </div>
+            i=i+1;
+        }
+    </div>
+</section>
+
+<style>
+    .bg{
+        background-color: black
+    }
+    section {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 400px;
+      }
+
+      img{
+        max-width: 100%;
+        max-height: 100%;
+        display: block; /* remove extra space below image */
+    }
+   .overlay-bg{
+    background: rgb(9,8,14);
+background: linear-gradient(270deg, rgba(9,8,14,1) 77%, rgba(9,8,14,0.34544240059304976) 98%, rgba(9,8,14,0.3) 100%);
+   }
+    .h5-rating{
+        font-size:1rem;
+        font-weight:500
+    }
+    .mybtn{
+        border-radius:20%;
+        border-width:2px;
+        border-color:#93F9B9
+    }
+
+    .genre{
+        font-family:'Lucida Sans';
+        font-size:18px;
+        font-weight:500;
+    }
+
+    .viewerRating{
+        font-family:'Segoe UI';
+        font-size:18px;
+        font-weight:700;
+        color:gray;
+    }
+    </style>
+
+@code {
+    /// <summary>
+    /// Create and download the simple PDF document
+    ///<summary>
+    public CinehubService cinheubService{ get; set; }
+    public List<int> bookingId;
+    public List<Movie> movies;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        cinheubService = new CinehubService();
+        bookingId = cinheubService.getBookingId("ahmed_deftoner");
+        movies = cinheubService.GetMovies("ahmed_deftoner");
+    }
+
+    protected async void ImageInsertionPDF(MouseEventArgs args)
+    {	   
+        ImageInsertionService service = new ImageInsertionService(hostingEnvironment);
+        MemoryStream documentStream = service.ImageInsertionPDF();
+        await JS.SaveAs("ImageInsertion.pdf", documentStream.ToArray());
+    }
+}
